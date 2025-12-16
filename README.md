@@ -8,5 +8,5 @@ How to run the app:
    - docker compose build
 6. Add an env file with all the needed parameters 
 7. After the build is done, run the following command:
-  - docker compose up
+   - docker compose up
 8. All done, the services are running
