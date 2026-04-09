@@ -1,0 +1,73 @@
+# Local development: Postgres in Docker + JDBC URLs (no Azure hostname).
+#
+# Usage (from deployement/):
+#   1. Copy .env.example to .env and set values marked "LOCAL" below, OR merge with your existing .env.
+#   2. docker compose -f docker-compose.yml -f docker-compose.local.yml up --build
+#
+# SPRING_DATASOURCE_URL overrides the Azure-style URL in application.properties.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    networks:
+      - backend
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - ./docker/init-databases.sql:/docker-entrypoint-initdb.d/00-init-databases.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  auth-service:
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${AUTH_DB_NAME}?sslmode=disable
+
+  matchmaking-service:
+    restart: on-failure
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      game-service:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${MATCHMAKING_DB_NAME}?sslmode=disable
+
+  game-service:
+    restart: on-failure
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${GAME_DB_NAME}?sslmode=disable
+
+  battle-service:
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${BATTLE_DB_NAME}?sslmode=disable
+
+  analytics-service:
+    restart: on-failure
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${ANALYTICS_DB_NAME}?sslmode=disable

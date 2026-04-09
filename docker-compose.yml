@@ -49,6 +49,7 @@ services:
       GAME_SERVICE_URL: http://game-service:8080
     depends_on:
       - redis
+      - game-service
 
   game-service:
     build: ../game-service
@@ -73,6 +74,7 @@ services:
       APP_PASSWORD: ${GAME_APP_PASSWORD}
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      DIPLOMA_BATTLE_SERVICE_URL: http://battle-service:8080
     depends_on:
       - redis
 
