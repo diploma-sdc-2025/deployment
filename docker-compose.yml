@@ -36,6 +36,8 @@ services:
           memory: 384M
     environment:
       SERVER_PORT: 8080
+      # Optional local debugging: add dev profile for POST /api/matchmaking/dev/purge-redis (clears stale queue/assignments)
+      # SPRING_PROFILES_ACTIVE: dev
       AUTH_JWT_SECRET: ${AUTH_JWT_SECRET}
       DB_SERVER: ${DB_SERVER}
       DB_PORT: ${DB_PORT}
