@@ -15,6 +15,9 @@ services:
     environment:
       SERVER_PORT: 8080
       AUTH_JWT_SECRET: ${AUTH_JWT_SECRET}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_SERVER}.postgres.database.azure.com:${DB_PORT}/${AUTH_DB_NAME}?sslmode=require
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       DB_SERVER: ${DB_SERVER}
       DB_PORT: ${DB_PORT}
       DB_NAME: ${AUTH_DB_NAME}
@@ -39,6 +42,9 @@ services:
       # Optional local debugging: add dev profile for POST /api/matchmaking/dev/purge-redis (clears stale queue/assignments)
       # SPRING_PROFILES_ACTIVE: dev
       AUTH_JWT_SECRET: ${AUTH_JWT_SECRET}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_SERVER}.postgres.database.azure.com:${DB_PORT}/${MATCHMAKING_DB_NAME}?sslmode=require
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       DB_SERVER: ${DB_SERVER}
       DB_PORT: ${DB_PORT}
       DB_NAME: ${MATCHMAKING_DB_NAME}
@@ -67,6 +73,9 @@ services:
     environment:
       SERVER_PORT: 8080
       AUTH_JWT_SECRET: ${AUTH_JWT_SECRET}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_SERVER}.postgres.database.azure.com:${DB_PORT}/${GAME_DB_NAME}?sslmode=require
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       DB_SERVER: ${DB_SERVER}
       DB_PORT: ${DB_PORT}
       DB_NAME: ${GAME_DB_NAME}
@@ -77,8 +86,12 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       DIPLOMA_BATTLE_SERVICE_URL: http://battle-service:8080
+      # Same keys as auth-service for POST /api/internal/match-rating (rating ±10 after matches).
+      AUTH_SERVICE_URL: http://auth-service:8080
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET:-local-dev-internal-secret}
     depends_on:
       - redis
+      - auth-service
 
   battle-service:
     build: ../battle-service
@@ -93,6 +106,9 @@ services:
     environment:
       SERVER_PORT: 8080
       AUTH_JWT_SECRET: ${AUTH_JWT_SECRET}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_SERVER}.postgres.database.azure.com:${DB_PORT}/${BATTLE_DB_NAME}?sslmode=require
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       DB_SERVER: ${DB_SERVER}
       DB_PORT: ${DB_PORT}
       DB_NAME: ${BATTLE_DB_NAME}
@@ -115,6 +131,9 @@ services:
     environment:
       SERVER_PORT: 8080
       AUTH_JWT_SECRET: ${AUTH_JWT_SECRET}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_SERVER}.postgres.database.azure.com:${DB_PORT}/${ANALYTICS_DB_NAME}?sslmode=require
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       DB_SERVER: ${DB_SERVER}
       DB_PORT: ${DB_PORT}
       DB_NAME: ${ANALYTICS_DB_NAME}
@@ -122,10 +141,14 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       APP_USER: ${ANALYTICS_APP_USER}
       APP_PASSWORD: ${ANALYTICS_APP_PASSWORD}
+      ANALYTICS_ADMIN_USERS: ${ANALYTICS_ADMIN_USERS:-kon}
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      AUTH_SERVICE_URL: http://auth-service:8080
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET:-local-dev-internal-secret}
     depends_on:
       - redis
+      - auth-service
 
   redis:
     image: redis:7
