@@ -31,6 +31,7 @@ services:
         condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${AUTH_DB_NAME}?sslmode=disable
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET:-local-dev-internal-secret}
 
   matchmaking-service:
     restart: on-failure
@@ -43,6 +44,8 @@ services:
         condition: service_started
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${MATCHMAKING_DB_NAME}?sslmode=disable
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
 
   game-service:
     restart: on-failure
@@ -51,8 +54,12 @@ services:
         condition: service_started
       postgres:
         condition: service_healthy
+      auth-service:
+        condition: service_started
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${GAME_DB_NAME}?sslmode=disable
+      AUTH_SERVICE_URL: http://auth-service:8080
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET:-local-dev-internal-secret}
 
   battle-service:
     restart: on-failure
@@ -69,5 +76,10 @@ services:
         condition: service_started
       postgres:
         condition: service_healthy
+      auth-service:
+        condition: service_started
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${ANALYTICS_DB_NAME}?sslmode=disable
+      ANALYTICS_ADMIN_USERS: ${ANALYTICS_ADMIN_USERS:-kon}
+      AUTH_SERVICE_URL: http://auth-service:8080
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET:-local-dev-internal-secret}
