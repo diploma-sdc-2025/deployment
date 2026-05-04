@@ -25,6 +25,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       APP_USER: ${AUTH_APP_USER}
       APP_PASSWORD: ${AUTH_APP_PASSWORD}
+      CORS_ALLOWED_ORIGIN_PATTERNS: "${CORS_ALLOWED_ORIGIN_PATTERNS:-http://localhost:*,http://127.0.0.1:*,https://*.francecentral.cloudapp.azure.com}"
 
   matchmaking-service:
     build: ../matchmaking-service
@@ -55,6 +56,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       GAME_SERVICE_URL: http://game-service:8080
+      CORS_ALLOWED_ORIGIN_PATTERNS: "${CORS_ALLOWED_ORIGIN_PATTERNS:-http://localhost:*,http://127.0.0.1:*,https://*.francecentral.cloudapp.azure.com}"
     depends_on:
       - redis
       - game-service
@@ -89,6 +91,7 @@ services:
       # Same keys as auth-service for POST /api/internal/match-rating (rating ±10 after matches).
       AUTH_SERVICE_URL: http://auth-service:8080
       INTERNAL_API_SECRET: ${INTERNAL_API_SECRET:-local-dev-internal-secret}
+      CORS_ALLOWED_ORIGIN_PATTERNS: "${CORS_ALLOWED_ORIGIN_PATTERNS:-http://localhost:*,http://127.0.0.1:*,https://*.francecentral.cloudapp.azure.com}"
     depends_on:
       - redis
       - auth-service
